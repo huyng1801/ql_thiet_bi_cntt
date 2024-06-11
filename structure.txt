@@ -1,0 +1,9 @@
+/your_project
+    /public
+        /dao
+            db.php
+        /views
+            /php
+                index.php
+                other_script.php
+        index.php

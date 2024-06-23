@@ -1,5 +1,39 @@
 <?php
 include 'db.php';
+function getAllNhapFiltered($filterDate = '', $filterSession = '') {
+    global $conn;
+    try {
+        $query = "SELECT nhap.*, buu_cuc.ten_buu_cuc, users.ten_nguoi_dung 
+                  FROM nhap 
+                  JOIN buu_cuc ON nhap.ma_buu_cuc = buu_cuc.ma_buu_cuc
+                  JOIN users ON nhap.user_nhan = users.ten_nguoi_dung
+                  WHERE 1=1";
+
+        if ($filterDate) {
+            $query .= " AND DATE(thoi_gian_nhan) = :filterDate";
+        }
+
+        if ($filterSession) {
+            if ($filterSession == 'morning') {
+                $query .= " AND TIME(thoi_gian_nhan) BETWEEN '00:00:00' AND '11:59:59'";
+            } elseif ($filterSession == 'afternoon') {
+                $query .= " AND TIME(thoi_gian_nhan) BETWEEN '12:00:00' AND '23:59:59'";
+            }
+        }
+
+        $stmt = $conn->prepare($query);
+
+        if ($filterDate) {
+            $stmt->bindParam(':filterDate', $filterDate);
+        }
+
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+        return [];
+    }
+}
 
 function getAllNhap() {
     global $conn;

@@ -1,5 +1,9 @@
 <?php
 include '../dao/thiet_bi_dao.php';
+include '../dao/buu_cuc_dao.php';
+include '../dao/quan_huyen_dao.php';
+include '../dao/danh_muc_thiet_bi_dao.php';
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['add'])) {
@@ -26,14 +30,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $thietBiList = getAllThietBi();
 $danhMucThietBiList = getAllDanhMucThietBi();
 $buuCucList = getAllBuuCuc();
+$quanHuyenList = getAllQuanHuyen();
 ?>
 
 <?php include 'header.php'; ?>
 
 <div class="container">
-    <h1 class="mt-4">Danh sách Thiết Bị</h1>
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Thêm Thiết Bị</button>
-    <table class="table mt-4">
+    <h1 class="mt-4 text-uppercase text-center">Danh sách Thiết Bị</h1>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Thêm mới</button>
+    <table class="table table-striped mt-4">
         <thead>
             <tr>
                 <th>Mã Thiết Bị</th>
@@ -61,7 +66,7 @@ $buuCucList = getAllBuuCuc();
                 <td><?php echo $thietBi['ghi_chu']; ?></td>
                 <td><?php echo $thietBi['ten_danh_muc']; ?></td>
                 <td>
-                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#updateModal" data-ma_thiet_bi="<?php echo $thietBi['ma_thiet_bi']; ?>" data-ten_thiet_bi="<?php echo $thietBi['ten_thiet_bi']; ?>" data-ma_sn="<?php echo $thietBi['ma_sn']; ?>" data-ma_buu_cuc="<?php echo $thietBi['ma_buu_cuc']; ?>" data-ghi_chu="<?php echo $thietBi['ghi_chu']; ?>" data-ma_danh_muc="<?php echo $thietBi['ma_danh_muc']; ?>">Sửa</button>
+                    <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#updateModal" data-ma_thiet_bi="<?php echo $thietBi['ma_thiet_bi']; ?>" data-ten_thiet_bi="<?php echo $thietBi['ten_thiet_bi']; ?>" data-ma_sn="<?php echo $thietBi['ma_sn']; ?>" data-ma_buu_cuc="<?php echo $thietBi['ma_buu_cuc']; ?>" data-ghi_chu="<?php echo $thietBi['ghi_chu']; ?>" data-ma_danh_muc="<?php echo $thietBi['ma_danh_muc']; ?>" data-ma_quan_huyen="<?php echo $thietBi['ma_quan_huyen']; ?>">Sửa</button>
                     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" data-ma_thiet_bi="<?php echo $thietBi['ma_thiet_bi']; ?>">Xóa</button>
                 </td>
             </tr>
@@ -95,10 +100,18 @@ $buuCucList = getAllBuuCuc();
                         <input type="file" class="form-control" id="hinh_anh" name="hinh_anh">
                     </div>
                     <div class="form-group">
+                        <label for="ma_quan_huyen">Quận/Huyện</label>
+                        <select class="form-control" id="ma_quan_huyen" name="ma_quan_huyen" required>
+                            <?php foreach ($quanHuyenList as $quanHuyen): ?>
+                            <option value="<?php echo $quanHuyen['ma_quan_huyen']; ?>"><?php echo $quanHuyen['ten_quan_huyen']; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="ma_buu_cuc">Bưu Cục</label>
                         <select class="form-control" id="ma_buu_cuc" name="ma_buu_cuc" required>
                             <?php foreach ($buuCucList as $buuCuc): ?>
-                            <option value="<?php echo $buuCuc['ma_buu_cuc']; ?>"><?php echo $buuCuc['ten_buu_cuc']; ?></option>
+                            <option value="<?php echo $buuCuc['ma_buu_cuc']; ?>" data-ma_quan_huyen="<?php echo $buuCuc['ma_quan_huyen']; ?>"><?php echo $buuCuc['ten_buu_cuc']; ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -150,10 +163,18 @@ $buuCucList = getAllBuuCuc();
                         <input type="file" class="form-control" id="hinh_anh_update" name="hinh_anh">
                     </div>
                     <div class="form-group">
+                        <label for="ma_quan_huyen_update">Quận/Huyện</label>
+                        <select class="form-control" id="ma_quan_huyen_update" name="ma_quan_huyen" required>
+                            <?php foreach ($quanHuyenList as $quanHuyen): ?>
+                            <option value="<?php echo $quanHuyen['ma_quan_huyen']; ?>"><?php echo $quanHuyen['ten_quan_huyen']; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="ma_buu_cuc_update">Bưu Cục</label>
                         <select class="form-control" id="ma_buu_cuc_update" name="ma_buu_cuc" required>
                             <?php foreach ($buuCucList as $buuCuc): ?>
-                            <option value="<?php echo $buuCuc['ma_buu_cuc']; ?>"><?php echo $buuCuc['ten_buu_cuc']; ?></option>
+                            <option value="<?php echo $buuCuc['ma_buu_cuc']; ?>" data-ma_quan_huyen="<?php echo $buuCuc['ma_quan_huyen']; ?>"><?php echo $buuCuc['ten_buu_cuc']; ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -203,9 +224,23 @@ $buuCucList = getAllBuuCuc();
     </div>
 </div>
 
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    $(document).ready(function() {
+    // Function to filter buu_cuc options based on selected quan_huyen
+    function filterBuuCucOptions(quanHuyenElement, buuCucElement, selectedBuuCuc) {
+        var selectedQuanHuyen = quanHuyenElement.val();
+        buuCucElement.empty();
+        <?php foreach ($buuCucList as $buuCuc): ?>
+        if ('<?php echo $buuCuc['ma_quan_huyen']; ?>' === selectedQuanHuyen) {
+            buuCucElement.append('<option value="<?php echo $buuCuc['ma_buu_cuc']; ?>"' + 
+                                 ('<?php echo $buuCuc['ma_buu_cuc']; ?>' == selectedBuuCuc ? ' selected' : '') + 
+                                 '><?php echo $buuCuc['ten_buu_cuc']; ?></option>');
+        }
+        <?php endforeach; ?>
+    }
+
+    // Handle showing the update modal and setting initial values
     $('#updateModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
         var ma_thiet_bi = button.data('ma_thiet_bi');
@@ -214,21 +249,32 @@ document.addEventListener('DOMContentLoaded', function () {
         var ma_buu_cuc = button.data('ma_buu_cuc');
         var ghi_chu = button.data('ghi_chu');
         var ma_danh_muc = button.data('ma_danh_muc');
+        var ma_quan_huyen = button.data('ma_quan_huyen');
         var modal = $(this);
+
         modal.find('.modal-body #ma_thiet_bi_update').val(ma_thiet_bi);
         modal.find('.modal-body #ten_thiet_bi_update').val(ten_thiet_bi);
         modal.find('.modal-body #ma_sn_update').val(ma_sn);
-        modal.find('.modal-body #ma_buu_cuc_update').val(ma_buu_cuc);
         modal.find('.modal-body #ghi_chu_update').val(ghi_chu);
         modal.find('.modal-body #ma_danh_muc_update').val(ma_danh_muc);
+        modal.find('.modal-body #ma_quan_huyen_update').val(ma_quan_huyen);
+
+        // Populate and select buu_cuc options based on selected quan_huyen
+        var buuCucDropdown = modal.find('.modal-body #ma_buu_cuc_update');
+        filterBuuCucOptions(modal.find('.modal-body #ma_quan_huyen_update'), buuCucDropdown, ma_buu_cuc);
     });
 
-    $('#deleteModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        var ma_thiet_bi = button.data('ma_thiet_bi');
-        var modal = $(this);
-        modal.find('.modal-body #ma_thiet_bi_delete').val(ma_thiet_bi);
+    // Filter buu_cuc options based on selected quan_huyen in Add Modal
+    $('#ma_quan_huyen, #ma_quan_huyen_update').on('change', function () {
+        var form = $(this).closest('form');
+        var buuCucDropdown = form.find('#ma_buu_cuc, #ma_buu_cuc_update');
+        filterBuuCucOptions($(this), buuCucDropdown, null);
     });
+
+    // Trigger change event to set initial state of buu_cuc dropdown in Add Modal
+    $('#ma_quan_huyen').trigger('change');
+});
+
 });
 </script>
 

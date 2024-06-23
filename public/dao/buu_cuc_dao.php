@@ -53,15 +53,4 @@ function deleteBuuCuc($ma_buu_cuc) {
     }
 }
 
-function getAllQuanHuyen() {
-    global $conn;
-    try {
-        $stmt = $conn->prepare("SELECT * FROM quan_huyen");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
-        return [];
-    }
-}
 ?>

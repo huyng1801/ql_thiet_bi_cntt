@@ -20,9 +20,9 @@ $quanHuyenList = getAllQuanHuyen();
 <?php include 'header.php'; ?>
 
 <div class="container">
-    <h1 class="mt-4">Danh sách Quận Huyện</h1>
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Thêm Quận Huyện</button>
-    <table class="table mt-4">
+    <h1 class="mt-4 text-uppercase text-center">Danh sách Quận Huyện</h1>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Thêm mới</button>
+    <table class="table table-striped mt-4">
         <thead>
             <tr>
                 <th>Mã Quận Huyện</th>

@@ -1,74 +1,69 @@
 <?php
-include '../dao/nhap_dao.php';
-include '../dao/quan_huyen_dao.php';
+include '../dao/cap_thiet_bi_dao.php';
 include '../dao/buu_cuc_dao.php';
 include '../dao/user_dao.php';
 include '../dao/danh_muc_thiet_bi_dao.php';
 
+// Get filter parameters from the request
+$filterDate = isset($_GET['filter_date']) ? $_GET['filter_date'] : '';
+$filterSession = isset($_GET['filter_session']) ? $_GET['filter_session'] : '';
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['add'])) {
-        $ma_nhap = addNhap($_POST['noi_xuat'], $_POST['ma_buu_cuc'], $_POST['user_nhan']);
-        if ($ma_nhap) {
+        $ma_cap_thiet_bi = addCapThietBi($_POST['noi_cap'], $_POST['ma_buu_cuc'], $_POST['user_cap']);
+        if ($ma_cap_thiet_bi) {
             foreach ($_POST['chi_tiet'] as $chi_tiet) {
-                addChiTietNhap($ma_nhap, $chi_tiet['ten_thiet_bi'], $chi_tiet['xuat_xu'], $chi_tiet['ma_danh_muc'], $chi_tiet['ma_sn']);
+                addChiTietCapThietBi($ma_cap_thiet_bi, $chi_tiet['ten_thiet_bi'], $chi_tiet['xuat_xu'], $chi_tiet['ma_danh_muc'], $chi_tiet['ma_sn']);
             }
         }
     } elseif (isset($_POST['delete'])) {
-        deleteNhap($_POST['ma_nhap']);
+        deleteCapThietBi($_POST['ma_cap_thiet_bi']);
     }
     header("Location: " . $_SERVER['PHP_SELF']);
     exit();
 }
 
 // Retrieve the list of records with the applied filters
-$nhapList = getAllNhap();
+$capThietBiList = getAllCapThietBiFiltered();
 $buuCucList = getAllBuuCuc();
 $userList = getAllUsers();
-$quanHuyenList = getAllQuanHuyen();
 $danhMucThietBiList = getAllDanhMucThietBi();
 
-function getNhapDetails($ma_nhap) {
-    $nhapDetails = getNhapById($ma_nhap);
-    $chiTietNhap = getChiTietNhapById($ma_nhap);
-    $nhapDetails['chi_tiet'] = $chiTietNhap;
-    return $nhapDetails;
-}
-
-$viewNhap = null;
+$viewCapThietBi = null;
 if (isset($_GET['view'])) {
-    $viewNhap = getNhapDetails($_GET['view']);
+    $viewCapThietBi = getCapThietBiDetails($_GET['view']);
 }
 ?>
 
 <?php include 'header.php'; ?>
 
-<div class="container">
-    <h1 class="mt-4 text-uppercase text-center">Nhập Thiết Bị</h1>
+<div class="container mt-4">
+    <h1 class="mt-4 text-uppercase text-center">Cấp Thiết Bị</h1>
 
     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Thêm mới</button>
 
     <table class="table table-striped mt-4">
         <thead>
             <tr>
-                <th>Mã Nhập</th>
-                <th>Thời Gian Nhận</th>
-                <th>Nơi Xuất</th>
+                <th>Mã Cấp</th>
+                <th>Thời Gian Cấp</th>
+                <th>Nơi Cấp</th>
                 <th>Bưu Cục</th>
-                <th>Người Nhận</th>
+                <th>Người Yêu Cầu</th>
                 <th>Hành động</th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($nhapList as $nhap): ?>
+            <?php foreach ($capThietBiList as $capThietBi): ?>
             <tr>
-                <td><?php echo $nhap['ma_nhap']; ?></td>
-                <td><?php echo $nhap['thoi_gian_nhan']; ?></td>
-                <td><?php echo $nhap['noi_xuat']; ?></td>
-                <td><?php echo $nhap['ten_buu_cuc']; ?></td>
-                <td><?php echo $nhap['ten_nguoi_dung']; ?></td>
+                <td><?php echo $capThietBi['ma_cap_thiet_bi']; ?></td>
+                <td><?php echo $capThietBi['thoi_gian_cap']; ?></td>
+                <td><?php echo $capThietBi['noi_cap']; ?></td>
+                <td><?php echo $capThietBi['ten_buu_cuc']; ?></td>
+                <td><?php echo $capThietBi['ten_nguoi_dung']; ?></td>
                 <td>
-                    <a href="?view=<?php echo $nhap['ma_nhap']; ?>" class="btn btn-info">Xem</a>
-                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" data-ma_nhap="<?php echo $nhap['ma_nhap']; ?>">Xóa</button>
+                    <a href="?view=<?php echo $capThietBi['ma_cap_thiet_bi']; ?>" class="btn btn-info">Xem</a>
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" data-ma_cap_thiet_bi="<?php echo $capThietBi['ma_cap_thiet_bi']; ?>">Xóa</button>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -82,35 +77,27 @@ if (isset($_GET['view'])) {
         <div class="modal-content">
             <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addModalLabel">Thêm Nhập Thiết Bị</h5>
+                    <h5 class="modal-title" id="addModalLabel">Thêm Cấp Thiết Bị</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="noi_xuat">Nơi Xuất</label>
-                        <input type="text" class="form-control" id="noi_xuat" name="noi_xuat" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="ma_quan_huyen">Quận/Huyện</label>
-                        <select class="form-control" id="ma_quan_huyen" name="ma_quan_huyen" required>
-                            <?php foreach ($quanHuyenList as $quanHuyen): ?>
-                            <option value="<?php echo $quanHuyen['ma_quan_huyen']; ?>"><?php echo $quanHuyen['ten_quan_huyen']; ?></option>
-                            <?php endforeach; ?>
-                        </select>
+                        <label for="noi_cap">Nơi Cấp</label>
+                        <input type="text" class="form-control" id="noi_cap" name="noi_cap" required>
                     </div>
                     <div class="form-group">
                         <label for="ma_buu_cuc">Bưu Cục</label>
                         <select class="form-control" id="ma_buu_cuc" name="ma_buu_cuc" required>
                             <?php foreach ($buuCucList as $buuCuc): ?>
-                            <option value="<?php echo $buuCuc['ma_buu_cuc']; ?>" data-ma_quan_huyen="<?php echo $buuCuc['ma_quan_huyen']; ?>"><?php echo $buuCuc['ten_buu_cuc']; ?></option>
+                            <option value="<?php echo $buuCuc['ma_buu_cuc']; ?>"><?php echo $buuCuc['ten_buu_cuc']; ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="user_nhan">Người Nhận</label>
-                        <select class="form-control" id="user_nhan" name="user_nhan" required>
+                        <label for="user_cap">Người Yêu Cầu</label>
+                        <select class="form-control" id="user_cap" name="user_cap" required>
                             <?php foreach ($userList as $user): ?>
                             <option value="<?php echo $user['ten_nguoi_dung']; ?>"><?php echo $user['ten_nguoi_dung']; ?></option>
                             <?php endforeach; ?>
@@ -148,7 +135,7 @@ if (isset($_GET['view'])) {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-                    <button type="submit" name="add" class="btn btn-primary">Lưu Nhập Kho</button>
+                    <button type="submit" name="add" class="btn btn-primary">Lưu Cấp Kho</button>
                 </div>
             </form>
         </div>
@@ -156,28 +143,28 @@ if (isset($_GET['view'])) {
 </div>
 
 <!-- View Modal -->
-<?php if ($viewNhap): ?>
+<?php if ($viewCapThietBi): ?>
 <div class="modal fade show" id="viewModal" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel" aria-hidden="true" style="display: block;">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="viewModalLabel">Chi Tiết Nhập Thiết Bị</h5>
+                <h5 class="modal-title" id="viewModalLabel">Chi Tiết Cấp Thiết Bị</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="window.location.href='<?php echo $_SERVER['PHP_SELF']; ?>'">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="view_noi_xuat">Nơi Xuất</label>
-                    <input type="text" class="form-control" id="view_noi_xuat" name="noi_xuat" value="<?php echo $viewNhap['noi_xuat']; ?>" readonly>
+                    <label for="view_noi_cap">Nơi Cấp</label>
+                    <input type="text" class="form-control" id="view_noi_cap" name="noi_cap" value="<?php echo $viewCapThietBi['noi_cap']; ?>" readonly>
                 </div>
                 <div class="form-group">
                     <label for="view_ma_buu_cuc">Bưu Cục</label>
-                    <input type="text" class="form-control" id="view_ma_buu_cuc" name="ma_buu_cuc" value="<?php echo $viewNhap['ten_buu_cuc']; ?>" readonly>
+                    <input type="text" class="form-control" id="view_ma_buu_cuc" name="ma_buu_cuc" value="<?php echo $viewCapThietBi['ten_buu_cuc']; ?>" readonly>
                 </div>
                 <div class="form-group">
-                    <label for="view_user_nhan">Người Nhận</label>
-                    <input type="text" class="form-control" id="view_user_nhan" name="user_nhan" value="<?php echo $viewNhap['ten_nguoi_dung']; ?>" readonly>
+                    <label for="view_user_cap">Người Yêu Cầu</label>
+                    <input type="text" class="form-control" id="view_user_cap" name="user_cap" value="<?php echo $viewCapThietBi['ten_nguoi_dung']; ?>" readonly>
                 </div>
                 <hr>
                 <h5>Chi Tiết Thiết Bị</h5>
@@ -191,7 +178,7 @@ if (isset($_GET['view'])) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($viewNhap['chi_tiet'] as $chi_tiet): ?>
+                        <?php foreach ($viewCapThietBi['chi_tiet'] as $chi_tiet): ?>
                         <tr>
                             <td><?php echo $chi_tiet['ten_thiet_bi']; ?></td>
                             <td><?php echo $chi_tiet['xuat_xu']; ?></td>
@@ -216,14 +203,14 @@ if (isset($_GET['view'])) {
         <div class="modal-content">
             <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Xóa Nhập Thiết Bị</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">Xóa Cấp Thiết Bị</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn xóa nhập thiết bị này không?</p>
-                    <input type="hidden" id="ma_nhap_delete" name="ma_nhap">
+                    <p>Bạn có chắc chắn muốn xóa cấp thiết bị này không?</p>
+                    <input type="hidden" id="ma_cap_thiet_bi_delete" name="ma_cap_thiet_bi">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
@@ -262,27 +249,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('#deleteModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
-        var ma_nhap = button.data('ma_nhap');
+        var ma_cap_thiet_bi = button.data('ma_cap_thiet_bi');
         var modal = $(this);
-        modal.find('.modal-body #ma_nhap_delete').val(ma_nhap);
+        modal.find('.modal-body #ma_cap_thiet_bi_delete').val(ma_cap_thiet_bi);
     });
 
-    // Filter buu_cuc options based on selected quan_huyen
-    $('#ma_quan_huyen, #ma_quan_huyen_update').on('change', function () {
-        var selectedQuanHuyen = $(this).val();
-        var buuCucDropdown = $(this).closest('form').find('#ma_buu_cuc, #ma_buu_cuc_update');
-        buuCucDropdown.empty();
-        <?php foreach ($buuCucList as $buuCuc): ?>
-        if ('<?php echo $buuCuc['ma_quan_huyen']; ?>' === selectedQuanHuyen) {
-            buuCucDropdown.append('<option value="<?php echo $buuCuc['ma_buu_cuc']; ?>"><?php echo $buuCuc['ten_buu_cuc']; ?></option>');
-        }
-        <?php endforeach; ?>
-    });
-
-    // Trigger change event to set initial state of buu_cuc dropdown
-    $('#ma_quan_huyen, #ma_quan_huyen_update').trigger('change');
-
-    <?php if ($viewNhap): ?>
+    <?php if ($viewCapThietBi): ?>
     $('#viewModal').modal('show');
     <?php endif; ?>
 });

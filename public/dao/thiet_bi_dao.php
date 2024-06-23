@@ -4,7 +4,7 @@ include 'db.php';
 function getAllThietBi() {
     global $conn;
     try {
-        $stmt = $conn->prepare("SELECT thiet_bi.*, danh_muc_thiet_bi.ten_danh_muc, buu_cuc.ten_buu_cuc 
+        $stmt = $conn->prepare("SELECT thiet_bi.*, danh_muc_thiet_bi.ten_danh_muc, buu_cuc.ten_buu_cuc, buu_cuc.ma_quan_huyen  
                                 FROM thiet_bi 
                                 LEFT JOIN danh_muc_thiet_bi ON thiet_bi.ma_danh_muc = danh_muc_thiet_bi.ma_danh_muc
                                 LEFT JOIN buu_cuc ON thiet_bi.ma_buu_cuc = buu_cuc.ma_buu_cuc");
@@ -69,30 +69,6 @@ function deleteThietBi($ma_thiet_bi) {
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
         return false;
-    }
-}
-
-function getAllDanhMucThietBi() {
-    global $conn;
-    try {
-        $stmt = $conn->prepare("SELECT * FROM danh_muc_thiet_bi");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
-        return [];
-    }
-}
-
-function getAllBuuCuc() {
-    global $conn;
-    try {
-        $stmt = $conn->prepare("SELECT * FROM buu_cuc");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
-        return [];
     }
 }
 ?>

@@ -1,5 +1,6 @@
 <?php
 include '../dao/buu_cuc_dao.php';
+include '../dao/quan_huyen_dao.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['add'])) {
@@ -20,9 +21,9 @@ $quanHuyenList = getAllQuanHuyen();
 <?php include 'header.php'; ?>
 
 <div class="container">
-    <h1 class="mt-4">Danh sách Bưu Cục</h1>
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Thêm Bưu Cục</button>
-    <table class="table mt-4">
+    <h1 class="mt-4 text-uppercase text-center">Danh sách Bưu Cục</h1>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">Thêm mới</button>
+    <table class="table table-striped mt-4">
         <thead>
             <tr>
                 <th>Mã Bưu Cục</th>

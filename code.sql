@@ -34,7 +34,7 @@ CREATE TABLE users (
 
 CREATE TABLE nhap ( 
     ma_nhap INT AUTO_INCREMENT PRIMARY KEY,
-    thoi_gian_nhan DATE DEFAULT CURRENT_DATE, 
+    thoi_gian_nhan TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
     noi_xuat VARCHAR(100) NOT NULL,
     ma_buu_cuc VARCHAR(10),
     user_nhan VARCHAR(50),
@@ -56,7 +56,7 @@ CREATE TABLE chi_tiet_nhap (
 
 CREATE TABLE xuat ( 
     ma_xuat INT AUTO_INCREMENT PRIMARY KEY,
-    thoi_gian_xuat DATE DEFAULT CURRENT_DATE, 
+    thoi_gian_xuat TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  
     noi_nhan VARCHAR(100) NOT NULL,
     ma_buu_cuc VARCHAR(10),
     user_xuat VARCHAR(50),
@@ -74,6 +74,27 @@ CREATE TABLE chi_tiet_xuat (
     ma_sn VARCHAR(20),
     FOREIGN KEY (ma_danh_muc) REFERENCES danh_muc_thiet_bi(ma_danh_muc) ON DELETE CASCADE,
     FOREIGN KEY (ma_xuat) REFERENCES xuat(ma_xuat) ON DELETE CASCADE
+);
+CREATE TABLE cap_thiet_bi (
+    ma_cap_thiet_bi INT AUTO_INCREMENT PRIMARY KEY,
+    thoi_gian_cap TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    noi_cap VARCHAR(100) NOT NULL,
+    ma_buu_cuc VARCHAR(10),
+    user_cap VARCHAR(50),
+    FOREIGN KEY (user_cap) REFERENCES users(ten_nguoi_dung) ON DELETE CASCADE,
+    FOREIGN KEY (ma_buu_cuc) REFERENCES buu_cuc(ma_buu_cuc) ON DELETE CASCADE
+);
+
+CREATE TABLE chi_tiet_cap_thiet_bi (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    ma_cap_thiet_bi INT,
+    ten_thiet_bi VARCHAR(100) NOT NULL,
+    hinh_anh TEXT,
+    xuat_xu VARCHAR(100),
+    ma_danh_muc INT,
+    ma_sn VARCHAR(20),
+    FOREIGN KEY (ma_danh_muc) REFERENCES danh_muc_thiet_bi(ma_danh_muc) ON DELETE CASCADE,
+    FOREIGN KEY (ma_cap_thiet_bi) REFERENCES cap_thiet_bi(ma_cap_thiet_bi) ON DELETE CASCADE
 );
 
 INSERT INTO quan_huyen (ma_quan_huyen, ten_quan_huyen) VALUES

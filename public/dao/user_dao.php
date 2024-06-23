@@ -50,4 +50,17 @@ function deleteUser($ten_nguoi_dung) {
         return false;
     }
 }
+function getUserByUsername($ten_nguoi_dung) {
+    global $conn;
+    try {
+        $stmt = $conn->prepare("SELECT * FROM users WHERE ten_nguoi_dung = :ten_nguoi_dung");
+        $stmt->bindParam(':ten_nguoi_dung', $ten_nguoi_dung);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+        return false;
+    }
+}
+
 ?>
